@@ -13,6 +13,8 @@ Usage
 
 The script requires the --user and --password arguments and optionally --labels and --delay (in seconds). Any spaces in the labels should be replaced by dashes. Note that Social, Promotions, etc. are part of Inbox.
 
+Example: add `/usr/bin/kde-gmail.py -u <user> -p <password> -l Inbox Foo -d 60` to Autostart.
+
 Troubleshooting
 ---------------
 
