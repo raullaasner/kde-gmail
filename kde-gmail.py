@@ -7,7 +7,7 @@
 
 from argparse import ArgumentParser
 import time
-import urllib.request as U
+import urllib.request
 import feedparser
 from subprocess import call
 
@@ -25,23 +25,26 @@ if not args.user and not args.password:
     parser.parse_args('-h'.split())
     exit()
 
-# Main
-latest = time.gmtime(0) # Time of the latest email
+latest = time.gmtime(0) # Time of the most recent email
 latest_prev = latest
+# Build the handler
+auth_handler = urllib.request.HTTPBasicAuthHandler()
+auth_handler.add_password(
+    realm='mail.google.com',
+    uri='https://mail.google.com',
+    user=args.user[0],
+    passwd=args.password[0]
+)
+opener = urllib.request.build_opener(auth_handler)
 while True:
-    # Login and fetch data
-    auth_handler = U.HTTPBasicAuthHandler()
-    auth_handler.add_password(
-        realm='mail.google.com',
-        uri='https://mail.google.com',
-        user=args.user[0],
-        passwd=args.password[0]
-    )
-    opener = U.build_opener(auth_handler)
     # Parse the feeds
     feeds = []
     for L in args.labels:
-        data = opener.open('https://mail.google.com/mail/feed/atom/'+L)
+        try:
+            data = opener.open('https://mail.google.com/mail/feed/atom/'+L)
+        except Exception as e:
+            call(['kdialog', '--error', 'KDE-Gmail has stopped:\n'+str(e)])
+            exit()
         feeds.append(feedparser.parse(data))
     # Prepare output
     text = ''
