@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2015 Raul Laasner
+# Copyright (C) 2015-2016 Raul Laasner
 # This file is distributed under the terms of the GNU General Public
 # License, see 'LICENSE' in the root directory of the present
 # distribution or http://gnu.org/copyleft/gpl.txt .
@@ -19,12 +19,14 @@ parser.add_argument('-d', '--delay', nargs=1, type=int, default=[120],
                     metavar='N',
                     help='Delay between subsequent checks (default: 120)')
 parser.add_argument('-l', '--labels', nargs='+', default=[''], metavar='LABEL',
-                    help='GMail labels to be included (default: Inbox)')
+                    help='Gmail labels to be included (default: Inbox)')
 args = parser.parse_args()
 if not args.user and not args.password:
     parser.parse_args('-h'.split())
     exit()
 
+WaitBeforeRetry = 600 # In case of failure of opening the feed, the
+                      # amount of time to wait before retrying.
 latest = time.gmtime(0) # Time of the most recent email
 latest_prev = latest
 # Build the handler
@@ -43,8 +45,8 @@ while True:
         try:
             data = opener.open('https://mail.google.com/mail/feed/atom/'+L)
         except Exception as e:
-            call(['kdialog', '--error', 'KDE-Gmail has stopped:\n'+str(e)])
-            exit()
+            time.sleep(WaitBeforeRetry)
+            continue
         feeds.append(feedparser.parse(data))
     # Prepare output
     text = ''

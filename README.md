@@ -1,12 +1,12 @@
 KDE-Gmail
 =========
 
-A small KDE-oriented script for checking GMail.
+A small KDE-oriented script for checking Gmail.
 
 Brief description
 -----------------
 
-A light-weight Python script for checking new email via the GMail Atom feed. This is a fairly elementary implementation. Any suggestions are welcome. Concerning KDE dependency, there are only a few calls to KDialog making it easy to port it to other DEs.
+A light-weight Python script for checking new email via the Gmail Atom feed. This is a fairly elementary implementation. Any suggestions are welcome. Concerning KDE dependency, there are only a few calls to KDialog making it easy to port it to other DEs.
 
 Usage
 -----
