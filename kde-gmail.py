@@ -10,6 +10,7 @@ import time
 import urllib.request
 import feedparser
 from subprocess import call
+from ctypes import cdll
 
 # Parse command line arguments
 parser = ArgumentParser()
@@ -27,6 +28,13 @@ if not args.user and not args.password:
 
 WaitBeforeRetry = 600 # In case of failure of opening the feed, the
                       # amount of time to wait before retrying.
+
+# Use res_init from glibc to re-read the DNS configuration file in
+# case of connection failures. See
+# stackoverflow.com/questions/21356781
+libc = cdll.LoadLibrary('libc.so.6')
+res_init = libc.__res_init
+
 latest = time.gmtime(0) # Time of the most recent email
 latest_prev = latest
 # Build the handler
@@ -43,9 +51,11 @@ while True:
     feeds = []
     for L in args.labels:
         try:
-            data = opener.open('https://mail.google.com/mail/feed/atom/'+L)
+            data = opener.open('https://mail.google.com/mail/feed/atom/'+L,
+                               timeout=args.delay[0])
         except Exception as e:
             time.sleep(WaitBeforeRetry)
+            res_init()
             continue
         feeds.append(feedparser.parse(data))
     # Prepare output
@@ -58,11 +68,11 @@ while True:
             text += '<i>'+M.title+'</i><br>'
             text += '&nbsp;&nbsp;'+M.description+'<br><br>'
             if M.published_parsed > latest: latest = M.published_parsed
-    # Call KDialog only if there's *new* unread mail since the last call
+    # Call KDialog only if there's new unread mail since the last call
     if text and latest > latest_prev:
         title = str(num_msg)+' new message'
         if num_msg > 1: title += 's'
         call(['kdialog', '--title', title, '--msgbox', text])
         latest_prev = latest
-            
+
     time.sleep(args.delay[0])
