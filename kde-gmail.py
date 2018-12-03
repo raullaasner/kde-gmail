@@ -5,15 +5,15 @@
 # License, see 'LICENSE' in the root directory of the present
 # distribution or http://gnu.org/copyleft/gpl.txt .
 
-from argparse import ArgumentParser
+import argparse
 import time
 import urllib.request
 import feedparser
-from subprocess import call
-from ctypes import cdll
+import subprocess
+import ctypes
 
 # Parse command line arguments
-parser = ArgumentParser()
+parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--user', nargs=1, help='User name')
 parser.add_argument('-p', '--password', nargs=1, help='Password.')
 parser.add_argument('-d', '--delay', nargs=1, type=int, default=[120],
@@ -32,7 +32,7 @@ WaitBeforeRetry = 600 # In case of failure of opening the feed, the
 # Use res_init from glibc to re-read the DNS configuration file in
 # case of connection failures. See
 # stackoverflow.com/questions/21356781
-libc = cdll.LoadLibrary('libc.so.6')
+libc = ctypes.cdll.LoadLibrary('libc.so.6')
 res_init = libc.__res_init
 
 latest = time.gmtime(0) # Time of the most recent email
@@ -71,8 +71,9 @@ while True:
     # Call KDialog only if there's new unread mail since the last call
     if text and latest > latest_prev:
         title = str(num_msg)+' new message'
-        if num_msg > 1: title += 's'
-        call(['kdialog', '--title', title, '--msgbox', text])
+        if num_msg > 1:
+            title += 's'
+        subprocess.call(['kdialog', '--title', title, '--msgbox', text])
         latest_prev = latest
 
     time.sleep(args.delay[0])
