@@ -26,8 +26,9 @@ if not args.user and not args.password:
     parser.parse_args('-h'.split())
     exit()
 
-WaitBeforeRetry = 600 # In case of failure of opening the feed, the
-                      # amount of time to wait before retrying.
+# In case of failure of opening the feed, the amount of time to wait
+# before retrying.
+WaitBeforeRetry = 600
 
 # Use res_init from glibc to re-read the DNS configuration file in
 # case of connection failures. See
@@ -35,7 +36,7 @@ WaitBeforeRetry = 600 # In case of failure of opening the feed, the
 libc = ctypes.cdll.LoadLibrary('libc.so.6')
 res_init = libc.__res_init
 
-latest = time.gmtime(0) # Time of the most recent email
+latest = time.gmtime(0)  # Time of the most recent email
 latest_prev = latest
 # Build the handler
 auth_handler = urllib.request.HTTPBasicAuthHandler()
@@ -53,7 +54,7 @@ while True:
         try:
             data = opener.open('https://mail.google.com/mail/feed/atom/'+L,
                                timeout=args.delay[0])
-        except Exception as e:
+        except Exception:
             time.sleep(WaitBeforeRetry)
             res_init()
             continue
@@ -67,7 +68,8 @@ while True:
             text += '<b>'+M.author+'</b><br>'
             text += '<i>'+M.title+'</i><br>'
             text += '&nbsp;&nbsp;'+M.description+'<br><br>'
-            if M.published_parsed > latest: latest = M.published_parsed
+            if M.published_parsed > latest:
+                latest = M.published_parsed
     # Call KDialog only if there's new unread mail since the last call
     if text and latest > latest_prev:
         title = str(num_msg)+' new message'
