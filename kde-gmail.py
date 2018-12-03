@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2015-2016 Raul Laasner
-# This file is distributed under the terms of the GNU General Public
-# License, see 'LICENSE' in the root directory of the present
-# distribution or http://gnu.org/copyleft/gpl.txt .
-
 import argparse
 import time
 import urllib.request
