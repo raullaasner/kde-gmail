@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 
 import argparse
-import time
-import urllib.request
-import feedparser
 import subprocess
-import ctypes
+import time
+
+try:
+    import ctypes
+    import feedparser
+    import urllib.request
+except ModuleNotFoundError as e:
+    text = f'KDE-Gmail requires "{e.name}" be installed.'
+    subprocess.call(['kdialog', '--title', 'KDE-GMail error', '--msgbox',
+                     text])
+    raise
 
 # Parse command line arguments
 parser = argparse.ArgumentParser()
@@ -49,6 +56,10 @@ while True:
         try:
             data = opener.open('https://mail.google.com/mail/feed/atom/'+L,
                                timeout=args.delay[0])
+        except urllib.error.HTTPError as e:
+            subprocess.call(['kdialog', '--title', 'KDE-Gmail error',
+                             '--msgbox', str(e)])
+            exit(1)
         except Exception:
             time.sleep(WaitBeforeRetry)
             res_init()
